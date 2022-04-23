@@ -26,10 +26,15 @@ class CrossValidator(JavaWrapper, pyspark.ml.tuning.CrossValidator):
             'ml.dmlc.xgboost4j.scala.spark.rapids.CrossValidator')
 
     def fit(self, dataset):
-        java_estimator, java_epms, java_evaluator = self._to_java_impl()
-        self._java_obj.setEstimator(java_estimator)
-        self._java_obj.setEvaluator(java_evaluator)
-        self._java_obj.setEstimatorParamMaps(java_epms)
+        estimator, epms, evaluator = self._to_java_impl()
+
+        self._java_obj.setEstimatorParamMaps(epms)
+        self._java_obj.setEvaluator(evaluator)
+        self._java_obj.setEstimator(estimator)
+        self._java_obj.setSeed(self.getSeed())
+        self._java_obj.setNumFolds(self.getNumFolds())
+        self._java_obj.setParallelism(self.getParallelism())
+        self._java_obj.setCollectSubModels(self.getCollectSubModels())
 
         cv_java_model = self._java_obj.fit(dataset._jdf)
         cv_py_model = CrossValidatorModel._from_java(cv_java_model)
